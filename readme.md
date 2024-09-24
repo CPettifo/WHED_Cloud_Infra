@@ -33,7 +33,7 @@ Create the storage account that will store the exported CSV file.
 
 Deploy and configure Azure Data Factory to orchestrate the data movement.
 
-📘 [Read Azure Data Factory README](./azure_data-factory/README.md)
+📘 [Read Azure Data Factory README](./azure_data_factory/README.md)
 
 ### 4. MySQL Database (Independent)
 
