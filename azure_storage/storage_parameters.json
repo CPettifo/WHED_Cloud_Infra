@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccounts_cosc320storage_name": {
+            "value": "your storage account name"
+        },
+        "vnetResourceGroup": {
+            "value": "your vnet resource group"
+        },
+        "vnetName": {
+            "value": "your vnet name"
+        },
+        "subnetName": {
+            "value": "your subnet name"
+        },
+        "allowedIpAddress": {
+            "value": "your allowed IP address/address range"
+        }
+    }
+}
