@@ -50,7 +50,7 @@ To deploy this template:
 
 3. Deploy the template:
     ```
-    az deployment group create --resource-group YourResourceGroupName --template-file path/to/your/template.json
+    az deployment group create --resource-group YourResourceGroupName --template-file path/to/your/vnet_template.json
     ```
 
 ## Parameters
