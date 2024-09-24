@@ -1,0 +1,1030 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Data Factory"
+            },
+            "defaultValue": "cosc320-data-factory"
+        },
+        "AzureMySql1_connectionString": {
+            "type": "secureString",
+            "metadata": {
+                "description": "Secure string for 'connectionString' of 'AzureMySql1'"
+            }
+        },
+        "AzureBlobStorage1_connectionString": {
+            "type": "secureString",
+            "metadata": {
+                "description": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+            }
+        },
+        "storageAccountResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name of the Storage Account"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Storage Account"
+            }
+        },
+        "storageAccountFQDN": {
+            "type": "string",
+            "metadata": {
+                "description": "Fully Qualified Domain Name of the Storage Account"
+            }
+        },
+        "groupId": {
+            "type": "string",
+            "defaultValue": "blob",
+            "metadata": {
+                "description": "Group ID for the private endpoint"
+            }
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureMySql1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureMySql",
+                "typeProperties": {
+                    "connectionString": "[parameters('AzureMySql1_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "AutoResolveIntegrationRuntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobStorage",
+                "typeProperties": {
+                    "connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "AutoResolveIntegrationRuntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/default')]",
+            "type": "Microsoft.DataFactory/factories/managedVirtualNetworks",
+            "apiVersion": "2018-06-01",
+            "properties": {},
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/default/AzureBlobStorage738')]",
+            "type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "privateLinkResourceId": "[resourceId(parameters('storageAccountResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                "groupId": "[parameters('groupId')]",
+                "fqdns": [
+                    "[parameters('storageAccountFQDN')]"
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/cosc320_whed_org_export')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy_48w",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [
+                            {
+                                "name": "Source",
+                                "value": "whed_org"
+                            },
+                            {
+                                "name": "Destination",
+                                "value": "cosc320-adf-export//whed_org.csv"
+                            }
+                        ],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureMySqlSource"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobStorageWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "validateDataConsistency": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "SourceDataset_48w",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DestinationDataset_48w",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "annotations": [],
+                "lastPublishTime": "2024-08-28T16:59:10Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/SourceDataset_48w')]",
+                "[concat(variables('factoryId'), '/datasets/DestinationDataset_48w')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AutoResolveIntegrationRuntime')]",
+            "type": "Microsoft.DataFactory/factories/integrationRuntimes",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "Managed",
+                "typeProperties": {
+                    "computeProperties": {
+                        "location": "AutoResolve",
+                        "dataFlowProperties": {
+                            "computeType": "General",
+                            "coreCount": 8,
+                            "timeToLive": 0
+                        }
+                    }
+                },
+                "managedVirtualNetwork": {
+                    "type": "ManagedVirtualNetworkReference",
+                    "referenceName": "default"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DestinationDataset_9se')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureBlobStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "fileName": "whed_org",
+                        "container": "cosc320-adf-export"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SourceDataset_9se')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureMySql1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureMySqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "tableName": "whed_org"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureMySql1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DestinationDataset_48w')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureBlobStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "fileName": "whed_org.csv",
+                        "container": "cosc320-adf-export"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+            ]
+        },
+        {            "name": "[concat(parameters('factoryName'), '/SourceDataset_48w')]",
+        "type": "Microsoft.DataFactory/factories/datasets",
+        "apiVersion": "2018-06-01",
+        "properties": {
+            "linkedServiceName": {
+                "referenceName": "AzureMySql1",
+                "type": "LinkedServiceReference"
+            },
+            "annotations": [],
+            "type": "AzureMySqlTable",
+            "schema": [
+                {
+                    "name": "OrgID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "GlobalID",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iParentOrgID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "AliasID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "Family",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "OrgName",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iBranchName",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "InstNameEnglish",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iBranchNameEnglish",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "CountryCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "StateCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "StateID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "BranchID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "OrgTypeCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "InstNameAlt",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "InstAcronym",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "InstClassCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "InstFundingTypeCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iIAUMembershipOption",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iIAULogo",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iIAUNews",
+                    "type": "text",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iAAUMembershipOption",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iOtherSites",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iHistory",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iAdmissionRequirements",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iFeesN",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iFeesNCurrencyCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iFeesI",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iFeesICurrencyCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iAcademicYear",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iLanguagesUsed",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iLibrary",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iMainPress",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iResidentialFacilities",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iCreated",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iPresentStatusYear",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffStatisticsYear",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffStatisticsApprox",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffFullTimeTotal",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffFullTimeMale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffFullTimeFemale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffPartTimeTotal",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffPartTimeFemale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffPartTimeMale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffDocFullTimeTotal",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffDocFullTimeMale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStaffDocFullTimeFemale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentStatisticsYear",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentStatisticsApprox",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentTotal",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentMale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentFemale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentForeignTotal",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentForeignMale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentForeignFemale",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentPartTime",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentDistance",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentsDisabilities",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iAccreditingAgency",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iAccreditationEndDate",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "sInstTypeID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "ReligionCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iStudentBody",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSAcademicCounselling",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSSocialCounselling",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSCareersAdvices",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSNurseryCare",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSCulturalActivities",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSSportsFacilities",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSLanguageLaboratory",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSDisabledFacilities",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSHealthServices",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSCanteen",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSLibrary",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSeLibrary",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSResidentialFacilities",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSITCentre",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSForeignStudiesCentre",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iSSOnlineDistanceLearning",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iDegreeNote",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iRecordHistory",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iInputDate",
+                    "type": "timestamp",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iMajorUpdateDate",
+                    "type": "timestamp",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iMinorUpdateDate",
+                    "type": "timestamp",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iMajorUpdateDateDP",
+                    "type": "timestamp",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "Street",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "City",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "Province",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "PostCode",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "Tel",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "Fax",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "EMail",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "WWW",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "UserID",
+                    "type": "mediumint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iWarning",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iDelete",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPTypeContact",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPName",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPEMail",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPEMailCopie",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPStatus",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPFlag",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPControle",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateEnvoi",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateLimite",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateAcces",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateModif",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateRelance",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateRetour",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPDateValid",
+                    "type": "int",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPNbrRelance",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DPHistRelance",
+                    "type": "longtext",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iUpdate",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iLearning",
+                    "type": "tinyint",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iLogo",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iWebUpdateDate",
+                    "type": "datetime",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iComment",
+                    "type": "text",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "iPartnership",
+                    "type": "varchar",
+                    "precision": 0,
+                    "scale": 0
+                },
+                {
+                    "name": "DateAccredited",
+                    "type": "mediumtext",
+                    "precision": 0,
+                    "scale": 0
+                }
+            ],
+            "typeProperties": {
+                "tableName": "whed_org"
+            }
+        },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureMySql1')]"
+            ]
+        }
+    ]
+}

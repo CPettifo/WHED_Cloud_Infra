@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "Your data factory name"
+        },
+        "AzureMySql1_connectionString": {
+            "value": "Your Azure MySQL connection string"
+        },
+        "AzureBlobStorage1_connectionString": {
+            "value": "Your Azure Blob Storage connection string"
+        },
+        "storageAccountResourceGroup": {
+            "value": "Your storage account resource group"
+        },
+        "storageAccountName": {
+            "value": "Your storage account name"
+        },
+        "storageAccountFQDN": {
+            "value": "Your storage account FQDN"
+        },
+        "groupId": {
+            "value": "blob"
+        }
+    }
+}
