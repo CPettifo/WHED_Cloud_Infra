@@ -1,0 +1,47 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverName": {
+            "value": "Your server name"
+        },
+        "administratorLogin": {
+            "value": "Your admin name"
+        },
+        "location": {
+            "value": "Your server location"
+        },
+        "skuName": {
+            "value": "Your sku name"
+        },
+        "skuTier": {
+            "value": "Your sku tier"
+        },
+        "storageSize": {
+            "value": "Your storage size in GB"
+        },
+        "backupRetentionDays": {
+            "value": "Your backup retention days"
+        },
+        "geoRedundantBackup": {
+            "value": "Disabled"
+        },
+        "databases": {
+            "value": [
+                "Your database to create",
+                "Your database to create (optional)"
+            ]
+        },
+        "allowAllIPs": {
+            "value": false
+        },
+        "allowedIpAddresses": {
+            "value": [
+                {
+                    "startIpAddress": "0.0.0.0",
+                    "endIpAddress": "0.0.0.0"
+                }
+            ]
+        }
+    }
+}
