@@ -21,19 +21,19 @@ To successfully deploy this project, follow these steps in order:
 
 Set up the virtual network that will be used by other resources.
 
-📘 [Read Virtual Network README](./azure_vnet/README.md)
+📘 Read Virtual Network README
 
 ### 2. Deploy Storage Account
 
 Create the storage account that will store the exported CSV file.
 
-📘 [Read Storage Account README](./azure_storage/README.md)
+📘 Read Storage Account README
 
 ### 3. Set Up Azure Data Factory
 
 Deploy and configure Azure Data Factory to orchestrate the data movement.
 
-📘 [Read Azure Data Factory README](./azure_data_factory/README.md)
+📘 Read Azure Data Factory README
 
 ### 4. MySQL Database (Independent)
 
@@ -64,4 +64,4 @@ Regularly review and update your deployed resources to ensure they comply with t
 
 ## Note
 
-For detailed instructions on each component, please refer to the linked README files.
+For detailed instructions on each component, please refer to the respective README files.
